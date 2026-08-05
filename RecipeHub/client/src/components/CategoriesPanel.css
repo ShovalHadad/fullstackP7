@@ -1,0 +1,127 @@
+.categories-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.category-create-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.category-create-form input {
+  flex: 1 1 200px;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.category-create-form button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.categories-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-item {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-name {
+  margin: 0 0 2px;
+  font-weight: 700;
+}
+
+.category-description {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.category-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-actions button {
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background-color: #e6f6ea;
+  color: #1e7a34;
+}
+
+.status-badge.inactive {
+  background-color: #f0f0f0;
+  color: #888;
+}
+
+.category-edit-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+  align-items: center;
+}
+
+.category-edit-form input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.category-edit-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.category-edit-buttons button {
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}

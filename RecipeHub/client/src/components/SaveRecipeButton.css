@@ -1,0 +1,46 @@
+.save-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.save-recipe-error {
+  color: #b3261e;
+  font-size: 13px;
+  margin: 0;
+}
+
+.save-recipe-saved {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.save-recipe-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #aa3bff;
+  border-radius: 6px;
+  color: #aa3bff;
+  background-color: #fff;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.save-recipe-button.saved {
+  background-color: #aa3bff;
+  color: #fff;
+}
+
+.save-recipe-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-recipe-saved select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}

@@ -1,0 +1,106 @@
+.chef-request-status {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.chef-request-page {
+  flex: 1;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chef-request-notice {
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chef-request-notice h1 {
+  margin: 0;
+}
+
+.chef-request-notice p {
+  margin: 0;
+}
+
+.chef-request-notice.pending {
+  background-color: #fff4d6;
+  color: #997404;
+}
+
+.chef-request-notice.approved {
+  background-color: #e6f6ea;
+  color: #1e7a34;
+}
+
+.chef-request-notice.rejected {
+  background-color: #fdecea;
+  color: #b3261e;
+}
+
+.chef-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.chef-request-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chef-request-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.chef-request-form input,
+.chef-request-form textarea {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.chef-request-form button {
+  margin-top: 20px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.chef-request-form button:disabled {
+  background-color: #c9a3e6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .chef-request-page {
+    padding: 16px;
+  }
+}

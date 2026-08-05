@@ -1,0 +1,212 @@
+.chef-dashboard {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+}
+
+.create-recipe-button {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.dashboard-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #aa3bff;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #666;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.dashboard-recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  flex-wrap: wrap;
+}
+
+.dashboard-recipe-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.dashboard-recipe-info {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dashboard-recipe-info a {
+  font-weight: 600;
+  text-decoration: none;
+  color: #222;
+}
+
+.dashboard-recipe-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.dashboard-recipe-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboard-recipe-actions a {
+  color: #aa3bff;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.dashboard-recipe-actions button {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.waiting-question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.waiting-question-item {
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.waiting-question-recipe {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.waiting-question-recipe a {
+  color: #aa3bff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.waiting-question-text {
+  margin: 0;
+}
+
+.waiting-question-text span {
+  font-weight: 600;
+}
+
+.answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.answer-form textarea {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.answer-form button {
+  align-self: flex-start;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.answer-form button:disabled {
+  background-color: #c9a3e6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .chef-dashboard {
+    padding: 16px;
+  }
+
+  .dashboard-recipe-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

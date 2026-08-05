@@ -1,0 +1,64 @@
+.chef-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.chef-profile-form h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.chef-profile-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chef-profile-success {
+  background-color: #e6f6ea;
+  color: #1e7a34;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chef-profile-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.chef-profile-form input,
+.chef-profile-form textarea {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.chef-profile-form button {
+  margin-top: 20px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.chef-profile-form button:disabled {
+  background-color: #c9a3e6;
+  cursor: not-allowed;
+}

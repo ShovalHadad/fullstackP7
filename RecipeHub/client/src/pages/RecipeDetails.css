@@ -1,0 +1,162 @@
+.recipe-details-status {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.recipe-details-error {
+  color: #b3261e;
+}
+
+.recipe-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.recipe-details-image {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.recipe-details-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.recipe-details-description {
+  margin: 0 0 12px;
+  color: #555;
+}
+
+.recipe-details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recipe-details-badges span {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #f3e8ff;
+  color: #aa3bff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.recipe-details-rating {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d4a017;
+}
+
+.recipe-details-admin-delete {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #b3261e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.recipe-details-admin-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recipe-details-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.recipe-details-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fact-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.recipe-details-section h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.recipe-details-ingredients,
+.recipe-details-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipe-details-chef {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.recipe-details-chef-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.recipe-details-chef-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #aa3bff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.recipe-details-chef-name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.recipe-details-chef-date {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+@media (max-width: 480px) {
+  .recipe-details {
+    padding: 16px;
+  }
+
+  .recipe-details-image {
+    max-height: 240px;
+  }
+}

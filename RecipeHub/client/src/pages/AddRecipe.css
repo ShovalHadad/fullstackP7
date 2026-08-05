@@ -1,0 +1,31 @@
+.add-recipe-status {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.add-recipe-error {
+  color: #b3261e;
+}
+
+.add-recipe-page {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.add-recipe-page h1 {
+  align-self: flex-start;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .add-recipe-page {
+    padding: 16px;
+  }
+}

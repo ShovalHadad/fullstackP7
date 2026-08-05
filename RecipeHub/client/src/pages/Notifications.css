@@ -1,0 +1,139 @@
+.notifications-page {
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.notifications-header h1 {
+  margin: 0;
+}
+
+.mark-all-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #aa3bff;
+  border-radius: 6px;
+  color: #aa3bff;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.notifications-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.notification-item.unread {
+  background-color: #f3e8ff;
+  border-color: #d9b3ff;
+}
+
+.notification-item-title {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.notification-item-message {
+  margin: 0 0 4px;
+  color: #444;
+  font-size: 14px;
+}
+
+.notification-item-date {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.notification-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.notification-item-actions a {
+  color: #aa3bff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notification-item-actions button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.notifications-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.notifications-pagination button {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.notifications-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .notifications-page {
+    padding: 16px;
+  }
+
+  .notification-item {
+    flex-direction: column;
+  }
+
+  .notification-item-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}

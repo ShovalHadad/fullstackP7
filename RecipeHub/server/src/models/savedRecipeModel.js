@@ -54,7 +54,7 @@ const findAllByUserId = async (
   }
 
   query +=
-    " ORDER BY sr.created_at DESC";
+    " ORDER BY sr.saved_at DESC";
 
   const [rows] = await pool.execute(
     query,

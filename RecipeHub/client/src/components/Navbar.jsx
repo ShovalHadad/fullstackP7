@@ -78,6 +78,10 @@ function Navbar() {
               </NavLink>
             )}
 
+            <NavLink to="/notifications" onClick={closeMenu}>
+              Notifications
+            </NavLink>
+
             <NavLink to="/profile" onClick={closeMenu}>
               Profile
             </NavLink>

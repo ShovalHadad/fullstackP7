@@ -1,0 +1,128 @@
+.profile-status {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.profile-page {
+  flex: 1;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.profile-success {
+  background-color: #e6f6ea;
+  color: #1e7a34;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.profile-image-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-image-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #aa3bff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.profile-image-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-image-upload,
+.profile-image-actions button {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.profile-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.profile-form input {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.profile-form input:disabled {
+  background-color: #f5f5f5;
+  color: #888;
+}
+
+.profile-form button[type='submit'] {
+  margin-top: 20px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.profile-form button[type='submit']:disabled {
+  background-color: #c9a3e6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .profile-image-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

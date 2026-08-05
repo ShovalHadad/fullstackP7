@@ -1,0 +1,157 @@
+.folders-page {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.folders-error {
+  background-color: #fdecea;
+  color: #b3261e;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.folder-create-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.folder-create-form input {
+  flex: 1 1 220px;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.folder-create-form button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #aa3bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.folder-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.folder-tab {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.folder-tab.active {
+  background-color: #aa3bff;
+  color: #fff;
+  border-color: #aa3bff;
+}
+
+.folder-tab-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.folder-icon-button {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  color: #666;
+}
+
+.folder-tab-editing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.folder-tab-editing input {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.folder-tab-editing button {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.saved-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.saved-recipe-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.saved-recipe-card a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.saved-recipe-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.saved-recipe-card-body {
+  padding: 12px 14px;
+}
+
+.saved-recipe-card-body h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.saved-recipe-card-body p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.saved-recipe-remove {
+  margin: 0 14px 12px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+@media (max-width: 480px) {
+  .folders-page {
+    padding: 16px;
+  }
+}
