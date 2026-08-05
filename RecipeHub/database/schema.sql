@@ -452,5 +452,6 @@ CREATE INDEX idx_notifications_user_read
 CREATE INDEX idx_chef_requests_status
     ON chef_requests(status);
 
-CREATE INDEX idx_reports_status
-    ON reports(status);
+-- השורה הוסרה כי טבלת reports לא קיימת בסקריפט הזה
+-- CREATE INDEX idx_reports_status
+--     ON reports(status);
