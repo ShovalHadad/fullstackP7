@@ -2,10 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 24px;
+  width: 100%;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-soft);
 }
 
 .chef-profile-form h2 {
@@ -14,18 +17,18 @@
 }
 
 .chef-profile-error {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
 .chef-profile-success {
-  background-color: #e6f6ea;
-  color: #1e7a34;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
@@ -37,28 +40,35 @@
 
 .chef-profile-form input,
 .chef-profile-form textarea {
+  width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   resize: vertical;
 }
 
 .chef-profile-form button {
-  margin-top: 20px;
-  padding: 12px;
+  margin-top: 22px;
+  padding: 11px 24px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   align-self: flex-start;
+  transition: background-color 0.15s ease;
+}
+
+.chef-profile-form button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
 }
 
 .chef-profile-form button:disabled {
-  background-color: #c9a3e6;
+  background-color: var(--color-primary-light);
   cursor: not-allowed;
 }

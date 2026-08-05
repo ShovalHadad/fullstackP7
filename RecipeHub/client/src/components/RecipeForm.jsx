@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import './RecipeForm.css'
@@ -35,8 +35,11 @@ function RecipeForm({ initialRecipe, onSubmit, submitLabel }) {
   )
 
   const [categories, setCategories] = useState([])
+  const [categoriesError, setCategoriesError] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const abortControllerRef = useRef(null)
 
   useEffect(() => {
     const cached = getCache('/categories')
@@ -45,12 +48,20 @@ function RecipeForm({ initialRecipe, onSubmit, submitLabel }) {
       return
     }
 
-    apiRequest('/categories')
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    apiRequest('/categories', { signal: controller.signal })
       .then((data) => {
         setCache('/categories', data)
         setCategories(data.categories)
       })
-      .catch(() => {})
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setCategoriesError('Could not load categories. Please refresh the page.')
+      })
+
+    return () => controller.abort()
   }, [])
 
   function handleImageChange(e) {
@@ -172,6 +183,7 @@ function RecipeForm({ initialRecipe, onSubmit, submitLabel }) {
       />
 
       <label htmlFor="category">Category</label>
+      {categoriesError && <p className="recipe-form-error">{categoriesError}</p>}
       <select
         id="category"
         value={categoryId}

@@ -1,18 +1,97 @@
+:root {
+  /* Surfaces */
+  --color-bg: #fbf3ea;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2e9dd;
+  --color-border: #e8d7c3;
+  --color-border-light: #f2e6d8;
+
+  /* Text */
+  --color-text: #4a3b32;
+  --color-text-soft: #5c4a3d;
+  --color-text-muted: #8b7863;
+  --color-text-faint: #b5a695;
+
+  /* Primary - soft warm pink */
+  --color-primary: #e38aa0;
+  --color-primary-hover: #d5748c;
+  --color-primary-light: #eda9b9;
+  --color-primary-tint: #fbeaf0;
+  --color-primary-tint-border: #f3cbda;
+
+  /* Secondary - soft light blue */
+  --color-secondary: #a9cde0;
+  --color-secondary-dark: #7fb0c9;
+  --color-secondary-bg: #e4f0f6;
+  --color-secondary-text: #4a7c93;
+
+  /* Latte / warm brown accent */
+  --color-latte: #d9b99b;
+  --color-latte-dark: #b4906d;
+
+  /* Status colors, kept warm-toned */
+  --color-success-bg: #e8f3e3;
+  --color-success-text: #5b8c57;
+  --color-error-bg: #fbeae7;
+  --color-error-text: #c1584a;
+  --color-warning-bg: #fbf0dc;
+  --color-warning-text: #9c7a2e;
+  --color-gold: #d9a441;
+
+  /* Typography */
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Nunito', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-brand: 'Caveat', cursive;
+
+  /* Radius scale - gentle, rounded */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Soft, warm-toned shadows */
+  --shadow-soft: 0 6px 20px rgba(139, 108, 79, 0.1);
+  --shadow-hover: 0 12px 28px rgba(139, 108, 79, 0.16);
+  --shadow-pop: 0 10px 30px rgba(74, 59, 50, 0.18);
+}
+
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  color: #222;
-  background-color: #fafafa;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 a {
@@ -22,4 +101,15 @@ a {
 img {
   max-width: 100%;
   display: block;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  max-width: 100%;
 }

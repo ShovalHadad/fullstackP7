@@ -5,7 +5,7 @@
 }
 
 .save-recipe-error {
-  color: #b3261e;
+  color: var(--color-error-text);
   font-size: 13px;
   margin: 0;
 }
@@ -17,20 +17,29 @@
 }
 
 .save-recipe-button {
-  padding: 8px 16px;
+  padding: 9px 18px;
   font-size: 14px;
-  font-weight: 600;
-  border: 1px solid #aa3bff;
-  border-radius: 6px;
-  color: #aa3bff;
-  background-color: #fff;
+  font-weight: 700;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  background-color: var(--color-surface);
   cursor: pointer;
   align-self: flex-start;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.save-recipe-button:hover:not(:disabled) {
+  background-color: var(--color-primary-tint);
 }
 
 .save-recipe-button.saved {
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   color: #fff;
+}
+
+.save-recipe-button.saved:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
 }
 
 .save-recipe-button:disabled {
@@ -39,8 +48,10 @@
 }
 
 .save-recipe-saved select {
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
 }

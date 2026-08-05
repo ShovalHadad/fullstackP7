@@ -1,9 +1,13 @@
 .chef-dashboard {
   flex: 1;
-  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
+  overflow-x: hidden;
 }
 
 .dashboard-header {
@@ -19,47 +23,55 @@
 }
 
 .create-recipe-button {
-  padding: 10px 18px;
+  padding: 11px 22px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #aa3bff;
-  border-radius: 6px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-pill);
   text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.create-recipe-button:hover {
+  background-color: var(--color-primary-hover);
 }
 
 .dashboard-error {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
   gap: 16px;
+  width: 100%;
+  min-width: 0;
 }
 
 .stat-card {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background-color: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: #aa3bff;
+  color: var(--color-primary);
 }
 
 .stat-label {
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .dashboard-section h2 {
@@ -77,18 +89,21 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 10px 14px;
+  width: 100%;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
   flex-wrap: wrap;
+  box-shadow: var(--shadow-soft);
 }
 
 .dashboard-recipe-item img {
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .dashboard-recipe-info {
@@ -102,13 +117,13 @@
 .dashboard-recipe-info a {
   font-weight: 600;
   text-decoration: none;
-  color: #222;
+  color: var(--color-text);
 }
 
 .dashboard-recipe-info p {
   margin: 0;
   font-size: 13px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .dashboard-recipe-actions {
@@ -117,18 +132,18 @@
 }
 
 .dashboard-recipe-actions a {
-  color: #aa3bff;
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
   font-size: 14px;
 }
 
 .dashboard-recipe-actions button {
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
 }
 
@@ -139,9 +154,9 @@
 }
 
 .waiting-question-item {
-  background-color: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -151,11 +166,11 @@
 .waiting-question-recipe {
   margin: 0;
   font-size: 13px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .waiting-question-recipe a {
-  color: #aa3bff;
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
 }
@@ -175,28 +190,35 @@
 }
 
 .answer-form textarea {
+  width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   resize: vertical;
 }
 
 .answer-form button {
   align-self: flex-start;
-  padding: 8px 18px;
+  padding: 9px 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.answer-form button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
 }
 
 .answer-form button:disabled {
-  background-color: #c9a3e6;
+  background-color: var(--color-primary-light);
   cursor: not-allowed;
 }
 

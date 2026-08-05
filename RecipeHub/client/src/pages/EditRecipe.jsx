@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../services/api'
-import { clearCache } from '../services/cache'
+import { getCache, setCache, clearCache } from '../services/cache'
+import { ToastContext } from '../context/ToastContext'
 import RecipeForm from '../components/RecipeForm'
 import Spinner from '../components/Spinner'
 import './AddRecipe.css'
@@ -9,16 +10,48 @@ import './AddRecipe.css'
 function EditRecipe() {
   const { recipeId } = useParams()
   const navigate = useNavigate()
+  const { showToast } = useContext(ToastContext)
 
   const [recipe, setRecipe] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const abortControllerRef = useRef(null)
+
+  /*
+  Uses the same cache key as RecipeDetails, so navigating here right
+  after viewing the recipe (a common flow) reuses that data instead
+  of fetching it again.
+  */
   useEffect(() => {
-    apiRequest(`/recipes/${recipeId}`)
-      .then((data) => setRecipe(data.recipe))
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
+    const cacheKey = `/recipes/${recipeId}`
+    const cached = getCache(cacheKey)
+
+    if (cached) {
+      setRecipe(cached.recipe)
+      setIsLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    apiRequest(cacheKey, { signal: controller.signal })
+      .then((data) => {
+        setCache(cacheKey, data)
+        setRecipe(data.recipe)
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
   }, [recipeId])
 
   async function handleSubmit(formData) {
@@ -29,6 +62,7 @@ function EditRecipe() {
     })
 
     clearCache('/recipes')
+    showToast('Recipe updated', 'success')
     navigate(`/recipes/${recipeId}`)
   }
 

@@ -10,16 +10,31 @@
 .spinner {
   width: 36px;
   height: 36px;
-  border: 4px solid #f0e6fa;
-  border-top-color: #aa3bff;
+  border: 4px solid var(--color-primary-tint);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 .spinner-label {
   margin: 0;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 14px;
+}
+
+/*
+Compact variant for inline contexts (e.g. replacing a small button)
+where the default padded, larger spinner would look out of place.
+*/
+.spinner-container.small {
+  padding: 4px 0;
+  align-items: flex-start;
+}
+
+.spinner.small {
+  width: 18px;
+  height: 18px;
+  border-width: 3px;
 }
 
 @keyframes spin {

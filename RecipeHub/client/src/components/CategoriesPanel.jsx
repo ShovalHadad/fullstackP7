@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
@@ -19,20 +19,43 @@ function CategoriesPanel() {
   const [editingName, setEditingName] = useState('')
   const [editingDescription, setEditingDescription] = useState('')
 
+  const abortControllerRef = useRef(null)
+
   useEffect(() => {
-    loadCategories()
-  }, [])
-
-  function loadCategories() {
-    setIsLoading(true)
-    setError('')
-
     const cached = getCache('/admin/categories')
     if (cached) {
       setCategories(cached.categories)
       setIsLoading(false)
       return
     }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    setIsLoading(true)
+    setError('')
+
+    apiRequest('/admin/categories', { signal: controller.signal })
+      .then((data) => {
+        setCache('/admin/categories', data)
+        setCategories(data.categories)
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
+  }, [])
+
+  function loadCategories() {
+    setIsLoading(true)
+    setError('')
 
     apiRequest('/admin/categories')
       .then((data) => {

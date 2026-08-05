@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
@@ -17,14 +17,9 @@ function ChefRequestsPanel() {
   const [rejectingId, setRejectingId] = useState(null)
   const [rejectionReason, setRejectionReason] = useState('')
 
+  const abortControllerRef = useRef(null)
+
   useEffect(() => {
-    loadRequests()
-  }, [statusFilter])
-
-  function loadRequests() {
-    setIsLoading(true)
-    setError('')
-
     const cacheKey = `/admin/chef-requests?status=${statusFilter}`
     const cached = getCache(cacheKey)
 
@@ -34,14 +29,29 @@ function ChefRequestsPanel() {
       return
     }
 
-    apiRequest(cacheKey)
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    setIsLoading(true)
+    setError('')
+
+    apiRequest(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRequests(data.requests)
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
-  }
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
+  }, [statusFilter])
 
   async function handleApprove(requestId) {
     setActingId(requestId)

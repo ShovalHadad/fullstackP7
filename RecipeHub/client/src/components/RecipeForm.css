@@ -2,18 +2,21 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 24px;
+  width: 100%;
   max-width: 640px;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-soft);
 }
 
 .recipe-form-error {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
@@ -26,24 +29,35 @@
 .recipe-form input,
 .recipe-form select,
 .recipe-form textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   resize: vertical;
 }
 
+.recipe-form input[type='file'] {
+  padding: 8px 0;
+  border: none;
+}
+
 .recipe-form-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .recipe-form-row > div {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .recipe-form-row label {
@@ -54,7 +68,7 @@
   margin-top: 10px;
   width: 100%;
   max-width: 240px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   object-fit: cover;
 }
 
@@ -63,25 +77,31 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .ingredient-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .step-row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 8px;
   align-items: flex-start;
+  width: 100%;
+  min-width: 0;
 }
 
 .step-number {
   font-weight: 700;
-  color: #aa3bff;
+  color: var(--color-primary);
   padding-top: 10px;
 }
 
@@ -89,39 +109,70 @@
 .step-row button {
   background: none;
   border: none;
-  color: #b3261e;
+  color: var(--color-error-text);
   font-size: 16px;
   cursor: pointer;
   padding: 8px;
+  flex-shrink: 0;
 }
 
 .add-row-button {
   align-self: flex-start;
-  padding: 8px 14px;
+  padding: 8px 16px;
   font-size: 13px;
-  font-weight: 600;
-  border: 1px solid #aa3bff;
-  border-radius: 6px;
-  color: #aa3bff;
-  background-color: #fff;
+  font-weight: 700;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  background-color: var(--color-surface);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.add-row-button:hover {
+  background-color: var(--color-primary-tint);
 }
 
 .recipe-form-submit {
   margin-top: 24px;
-  padding: 12px;
+  width: 100%;
+  padding: 13px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.recipe-form-submit:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
 }
 
 .recipe-form-submit:disabled {
-  background-color: #c9a3e6;
+  background-color: var(--color-primary-light);
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .recipe-form {
+    padding: 20px;
+  }
+
+  .recipe-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Name on its own row; qty + unit + remove share the next */
+  .ingredient-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .ingredient-row input:first-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 480px) {
@@ -129,11 +180,15 @@
     padding: 16px;
   }
 
-  .recipe-form-row {
-    grid-template-columns: 1fr;
+  .ingredient-row {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .ingredient-row {
-    grid-template-columns: 1fr;
+  .ingredient-row input:first-child {
+    grid-column: auto;
+  }
+
+  .ingredient-row button {
+    justify-self: start;
   }
 }

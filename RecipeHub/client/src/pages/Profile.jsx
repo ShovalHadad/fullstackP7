@@ -1,12 +1,17 @@
 import { useState, useEffect, useContext, useRef } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { ToastContext } from '../context/ToastContext'
 import { apiRequest } from '../services/api'
+import { getCache, setCache } from '../services/cache'
 import ChefProfileSection from '../components/ChefProfileSection'
 import Spinner from '../components/Spinner'
 import './Profile.css'
 
+const PROFILE_KEY = '/profile'
+
 function Profile() {
   const { updateUser } = useContext(AuthContext)
+  const { showToast } = useContext(ToastContext)
 
   const [profile, setProfile] = useState(null)
   const [fullName, setFullName] = useState('')
@@ -21,16 +26,40 @@ function Profile() {
   const [successMessage, setSuccessMessage] = useState('')
 
   const fileInputRef = useRef(null)
+  const abortControllerRef = useRef(null)
 
   useEffect(() => {
-    apiRequest('/profile')
+    const cached = getCache(PROFILE_KEY)
+
+    if (cached) {
+      setProfile(cached.profile)
+      setFullName(cached.profile.full_name)
+      setUsername(cached.profile.username)
+      setIsLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    apiRequest(PROFILE_KEY, { signal: controller.signal })
       .then((data) => {
+        setCache(PROFILE_KEY, data)
         setProfile(data.profile)
         setFullName(data.profile.full_name)
         setUsername(data.profile.username)
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
   }, [])
 
   function handleImageChange(e) {
@@ -76,17 +105,36 @@ function Profile() {
         isFormData: true,
       })
 
-      setProfile({ ...profile, ...data.profile })
+      const updatedProfile = { ...profile, ...data.profile }
+      setProfile(updatedProfile)
+      setCache(PROFILE_KEY, { profile: updatedProfile })
       updateUser(data.profile)
       setImageFile(null)
       setImagePreview(null)
       setRemoveImage(false)
       setSuccessMessage('Profile updated successfully')
+      showToast('Profile updated', 'success')
     } catch (err) {
       setError(err.message)
     } finally {
       setIsSaving(false)
     }
+  }
+
+  /*
+  ChefProfileSection already knows the values it just saved, so it
+  hands them back here instead of this component re-fetching /profile
+  just to pick up the same data.
+  */
+  function handleChefProfileSaved(updatedFields) {
+    setProfile((previous) => {
+      const updated = {
+        ...previous,
+        chef_profile: { ...previous.chef_profile, ...updatedFields },
+      }
+      setCache(PROFILE_KEY, { profile: updated })
+      return updated
+    })
   }
 
   if (isLoading) {
@@ -171,7 +219,9 @@ function Profile() {
         </button>
       </form>
 
-      {profile.role === 'chef' && <ChefProfileSection chefProfile={profile.chef_profile} />}
+      {profile.role === 'chef' && (
+        <ChefProfileSection chefProfile={profile.chef_profile} onSaved={handleChefProfileSaved} />
+      )}
     </div>
   )
 }

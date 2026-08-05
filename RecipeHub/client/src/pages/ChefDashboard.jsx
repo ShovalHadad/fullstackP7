@@ -1,13 +1,15 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
+import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
 import './ChefDashboard.css'
 
 function ChefDashboard() {
   const { user } = useContext(AuthContext)
+  const { showToast } = useContext(ToastContext)
 
   const [recipes, setRecipes] = useState([])
   const [isLoadingRecipes, setIsLoadingRecipes] = useState(true)
@@ -18,22 +20,10 @@ function ChefDashboard() {
   const [answerDrafts, setAnswerDrafts] = useState({})
   const [answeringId, setAnsweringId] = useState(null)
 
-  useEffect(() => {
-    loadRecipes()
-  }, [])
+  const recipesAbortRef = useRef(null)
+  const questionsAbortRef = useRef(null)
 
   useEffect(() => {
-    if (recipes.length > 0) {
-      loadWaitingQuestions()
-    } else {
-      setIsLoadingQuestions(false)
-    }
-  }, [recipes])
-
-  function loadRecipes() {
-    setIsLoadingRecipes(true)
-    setRecipesError('')
-
     const cacheKey = `/recipes?chefId=${user.id}&limit=50`
     const cached = getCache(cacheKey)
 
@@ -43,44 +33,91 @@ function ChefDashboard() {
       return
     }
 
-    apiRequest(cacheKey)
+    const controller = new AbortController()
+    recipesAbortRef.current = controller
+
+    setIsLoadingRecipes(true)
+    setRecipesError('')
+
+    apiRequest(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRecipes(data.items)
       })
-      .catch((err) => setRecipesError(err.message))
-      .finally(() => setIsLoadingRecipes(false))
-  }
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setRecipesError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoadingRecipes(false)
+        }
+      })
 
-  async function loadWaitingQuestions() {
-    setIsLoadingQuestions(true)
+    return () => controller.abort()
+  }, [])
 
-    try {
-      const results = await Promise.all(
-        recipes.map((recipe) =>
-          apiRequest(`/recipes/${recipe.id}/questions`).then((data) => ({
-            recipeId: recipe.id,
-            recipeTitle: recipe.title,
-            questions: data.questions.filter((question) => !question.answer),
+  /*
+  Each recipe's questions are fetched (or read from cache, if
+  QuestionSection on that recipe's page already loaded them first)
+  and combined into one "waiting questions" list. The AbortController
+  cancels every in-flight request in this batch if the recipe list
+  changes again or the component unmounts before they finish.
+  */
+  useEffect(() => {
+    if (recipes.length === 0) {
+      setIsLoadingQuestions(false)
+      return
+    }
+
+    const controller = new AbortController()
+    questionsAbortRef.current = controller
+
+    async function loadWaitingQuestions() {
+      setIsLoadingQuestions(true)
+
+      try {
+        const results = await Promise.all(
+          recipes.map(async (recipe) => {
+            const questionsKey = `/recipes/${recipe.id}/questions`
+            const cached = getCache(questionsKey)
+            const data = cached || (await apiRequest(questionsKey, { signal: controller.signal }))
+
+            if (!cached) {
+              setCache(questionsKey, data)
+            }
+
+            return {
+              recipeId: recipe.id,
+              recipeTitle: recipe.title,
+              questions: data.questions.filter((question) => !question.answer),
+            }
+          })
+        )
+
+        const flattened = results.flatMap((result) =>
+          result.questions.map((question) => ({
+            ...question,
+            recipeId: result.recipeId,
+            recipeTitle: result.recipeTitle,
           }))
         )
-      )
 
-      const flattened = results.flatMap((result) =>
-        result.questions.map((question) => ({
-          ...question,
-          recipeId: result.recipeId,
-          recipeTitle: result.recipeTitle,
-        }))
-      )
-
-      setWaitingQuestions(flattened)
-    } catch (err) {
-      setRecipesError(err.message)
-    } finally {
-      setIsLoadingQuestions(false)
+        setWaitingQuestions(flattened)
+      } catch (err) {
+        if (err.name === 'AbortError') return
+        setRecipesError(err.message)
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingQuestions(false)
+        }
+      }
     }
-  }
+
+    loadWaitingQuestions()
+
+    return () => controller.abort()
+  }, [recipes])
 
   async function handleDeleteRecipe(recipeId) {
     const confirmed = window.confirm('Delete this recipe? This cannot be undone.')
@@ -90,6 +127,7 @@ function ChefDashboard() {
       await apiRequest(`/recipes/${recipeId}`, { method: 'DELETE' })
       clearCache('/recipes')
       setRecipes(recipes.filter((recipe) => recipe.id !== recipeId))
+      showToast('Recipe deleted', 'success')
     } catch (err) {
       setRecipesError(err.message)
     }
@@ -103,6 +141,8 @@ function ChefDashboard() {
     const answerText = answerDrafts[questionId] || ''
     if (!answerText.trim()) return
 
+    const question = waitingQuestions.find((item) => item.id === questionId)
+
     setAnsweringId(questionId)
 
     try {
@@ -110,7 +150,34 @@ function ChefDashboard() {
         method: 'POST',
         body: { answerText },
       })
-      setWaitingQuestions(waitingQuestions.filter((question) => question.id !== questionId))
+      setAnswerDrafts({ ...answerDrafts, [questionId]: '' })
+
+      /*
+      Refetches just this one recipe's questions (a genuinely necessary
+      request, since the data changed) and refreshes the shared cache
+      entry, so QuestionSection shows the new answer immediately if the
+      chef navigates to that recipe's page next.
+      */
+      if (question) {
+        const questionsKey = `/recipes/${question.recipeId}/questions`
+        const freshData = await apiRequest(questionsKey)
+        setCache(questionsKey, freshData)
+
+        const stillWaiting = freshData.questions
+          .filter((item) => !item.answer)
+          .map((item) => ({
+            ...item,
+            recipeId: question.recipeId,
+            recipeTitle: question.recipeTitle,
+          }))
+
+        setWaitingQuestions([
+          ...waitingQuestions.filter((item) => item.recipeId !== question.recipeId),
+          ...stillWaiting,
+        ])
+      }
+
+      showToast('Answer posted', 'success')
     } catch (err) {
       setRecipesError(err.message)
     } finally {

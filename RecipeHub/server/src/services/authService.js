@@ -240,7 +240,21 @@ const login = async ({ email, password }) => {
   };
 };
 
+/*
+Returns the public profile of the currently authenticated user.
+*/
+const getCurrentUser = async (userId) => {
+  const user = await userModel.findPublicById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  return { user };
+};
+
 module.exports = {
   register,
   login,
+  getCurrentUser,
 };

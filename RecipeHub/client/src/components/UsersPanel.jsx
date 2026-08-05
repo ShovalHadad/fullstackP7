@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
@@ -23,14 +23,9 @@ function UsersPanel() {
   const [error, setError] = useState('')
   const [actingId, setActingId] = useState(null)
 
+  const abortControllerRef = useRef(null)
+
   useEffect(() => {
-    loadUsers()
-  }, [appliedSearch, roleFilter, blockedFilter, page])
-
-  function loadUsers() {
-    setIsLoading(true)
-    setError('')
-
     const params = new URLSearchParams()
     params.set('page', page)
     if (appliedSearch) params.set('search', appliedSearch)
@@ -47,15 +42,30 @@ function UsersPanel() {
       return
     }
 
-    apiRequest(cacheKey)
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    setIsLoading(true)
+    setError('')
+
+    apiRequest(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setUsers(data.items)
         setPagination(data.pagination)
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
-  }
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
+  }, [appliedSearch, roleFilter, blockedFilter, page])
 
   function handleSearchSubmit(e) {
     e.preventDefault()

@@ -1,11 +1,14 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { ToastContext } from '../context/ToastContext'
 import { apiRequest } from '../services/api'
+import { getCache, setCache } from '../services/cache'
 import Spinner from './Spinner'
 import './QuestionSection.css'
 
 function QuestionSection({ recipeId, chefId }) {
   const { user } = useContext(AuthContext)
+  const { showToast } = useContext(ToastContext)
   const isRecipeChef = user && Number(user.id) === Number(chefId)
 
   const [questions, setQuestions] = useState([])
@@ -19,18 +22,57 @@ function QuestionSection({ recipeId, chefId }) {
   const [answerDrafts, setAnswerDrafts] = useState({})
   const [answeringId, setAnsweringId] = useState(null)
 
-  useEffect(() => {
-    loadQuestions()
-  }, [recipeId])
+  const abortControllerRef = useRef(null)
 
-  function loadQuestions() {
+  /*
+  The Chef Dashboard fetches this same endpoint (per recipe) to build
+  its "waiting questions" list, using the identical cache key, so
+  whichever screen the chef visits first performs the real request.
+  */
+  useEffect(() => {
+    const questionsKey = `/recipes/${recipeId}/questions`
+    const cached = getCache(questionsKey)
+
+    if (cached) {
+      setQuestions(cached.questions)
+      setIsLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     setIsLoading(true)
     setError('')
 
-    apiRequest(`/recipes/${recipeId}/questions`)
-      .then((data) => setQuestions(data.questions))
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
+    apiRequest(questionsKey, { signal: controller.signal })
+      .then((data) => {
+        setCache(questionsKey, data)
+        setQuestions(data.questions)
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
+  }, [recipeId])
+
+  /*
+  Re-fetches after a mutation (asking or answering a question) and
+  refreshes the shared cache entry, so the Chef Dashboard's own copy
+  of this recipe's questions is not left stale.
+  */
+  async function reloadQuestions() {
+    const questionsKey = `/recipes/${recipeId}/questions`
+    const data = await apiRequest(questionsKey)
+    setCache(questionsKey, data)
+    setQuestions(data.questions)
   }
 
   async function handleAskSubmit(e) {
@@ -51,7 +93,8 @@ function QuestionSection({ recipeId, chefId }) {
       })
 
       setQuestionText('')
-      loadQuestions()
+      await reloadQuestions()
+      showToast('Question submitted', 'success')
     } catch (err) {
       setFormError(err.message)
     } finally {
@@ -79,7 +122,8 @@ function QuestionSection({ recipeId, chefId }) {
       })
 
       setAnswerDrafts({ ...answerDrafts, [questionId]: '' })
-      loadQuestions()
+      await reloadQuestions()
+      showToast('Answer posted', 'success')
     } catch (err) {
       setError(err.message)
     } finally {

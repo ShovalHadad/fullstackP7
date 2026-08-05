@@ -1,8 +1,11 @@
 .navbar {
   display: flex;
   flex-direction: column;
-  background-color: #aa3bff;
-  padding: 12px 24px;
+  width: 100%;
+  max-width: 100%;
+  background-color: var(--color-primary);
+  padding: 14px 28px;
+  box-shadow: var(--shadow-soft);
 }
 
 .navbar-header {
@@ -13,9 +16,11 @@
 
 .navbar-brand {
   color: #fff;
-  font-size: 20px;
+  font-family: var(--font-brand);
+  font-size: 30px;
   font-weight: 700;
   text-decoration: none;
+  letter-spacing: 0.5px;
 }
 
 .navbar-toggle {
@@ -31,7 +36,7 @@
   display: none;
   flex-direction: column;
   gap: 4px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .navbar-links.open {
@@ -42,18 +47,19 @@
 .navbar-logout {
   color: #fff;
   text-decoration: none;
-  padding: 10px 8px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
   font-size: 15px;
+  font-weight: 600;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
 .navbar-links a.active {
-  background-color: rgba(255, 255, 255, 0.2);
-  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.24);
 }
 
 .navbar-links a:hover,

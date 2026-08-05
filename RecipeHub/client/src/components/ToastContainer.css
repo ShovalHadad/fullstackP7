@@ -15,24 +15,25 @@
   gap: 16px;
   min-width: 240px;
   max-width: 360px;
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
   color: #fff;
   font-size: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
   animation: toast-in 0.2s ease-out;
 }
 
 .toast-success {
-  background-color: #2e7d32;
+  background-color: #4f7a4a;
 }
 
 .toast-error {
-  background-color: #b3261e;
+  background-color: #b2503f;
 }
 
 .toast-info {
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
 }
 
 .toast-close {

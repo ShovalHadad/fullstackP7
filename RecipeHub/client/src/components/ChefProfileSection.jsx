@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { apiRequest } from '../services/api'
+import { ToastContext } from '../context/ToastContext'
 import './ChefProfileSection.css'
 
-function ChefProfileSection({ chefProfile }) {
+function ChefProfileSection({ chefProfile, onSaved }) {
+  const { showToast } = useContext(ToastContext)
+
   const [displayName, setDisplayName] = useState(chefProfile.display_name || '')
   const [bio, setBio] = useState(chefProfile.bio || '')
   const [experience, setExperience] = useState(chefProfile.experience || '')
@@ -27,6 +30,13 @@ function ChefProfileSection({ chefProfile }) {
       setSuccessMessage(
         data.chef_profile.changed ? 'Chef profile updated successfully' : 'No changes to save'
       )
+
+      if (data.chef_profile.changed) {
+        if (onSaved) {
+          onSaved({ display_name: displayName, bio, experience, specialties })
+        }
+        showToast('Chef profile updated', 'success')
+      }
     } catch (err) {
       setError(err.message)
     } finally {

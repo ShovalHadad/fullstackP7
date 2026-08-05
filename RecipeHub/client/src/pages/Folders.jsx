@@ -1,10 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { apiRequest } from '../services/api'
+import { getCache, setCache } from '../services/cache'
+import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
 import './Folders.css'
 
+const FOLDERS_KEY = '/folders'
+const SAVED_RECIPES_KEY = '/saved-recipes'
+
 function Folders() {
+  const { showToast } = useContext(ToastContext)
+
   const [folders, setFolders] = useState([])
   const [savedRecipes, setSavedRecipes] = useState([])
   const [selectedFolderId, setSelectedFolderId] = useState('all')
@@ -16,25 +23,70 @@ function Folders() {
   const [editingFolderId, setEditingFolderId] = useState(null)
   const [editingFolderName, setEditingFolderName] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  const abortControllerRef = useRef(null)
 
-  async function loadData() {
+  /*
+  Both cache keys here are shared with SaveRecipeButton, which reads
+  and writes the exact same "/folders" and "/saved-recipes" entries.
+  Whichever component mounts first performs the real fetch; the other
+  reuses the cached result.
+  */
+  useEffect(() => {
+    const cachedFolders = getCache(FOLDERS_KEY)
+    const cachedSaved = getCache(SAVED_RECIPES_KEY)
+
+    if (cachedFolders && cachedSaved) {
+      setFolders(cachedFolders.folders)
+      setSavedRecipes(cachedSaved.recipes)
+      setIsLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     setIsLoading(true)
     setError('')
 
-    try {
-      const foldersData = await apiRequest('/folders')
-      setFolders(foldersData.folders)
+    async function loadData() {
+      try {
+        const foldersData =
+          cachedFolders || (await apiRequest(FOLDERS_KEY, { signal: controller.signal }))
+        setCache(FOLDERS_KEY, foldersData)
+        setFolders(foldersData.folders)
 
-      const savedData = await apiRequest('/saved-recipes')
-      setSavedRecipes(savedData.recipes)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
+        const savedData =
+          cachedSaved || (await apiRequest(SAVED_RECIPES_KEY, { signal: controller.signal }))
+        setCache(SAVED_RECIPES_KEY, savedData)
+        setSavedRecipes(savedData.recipes)
+      } catch (err) {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
     }
+
+    loadData()
+
+    return () => controller.abort()
+  }, [])
+
+  /*
+  Re-fetches both lists fresh after a mutation and refreshes the
+  shared cache, rather than relying on the initial-load cache-check
+  path (which would otherwise just serve the now-stale entries back).
+  */
+  async function reloadData() {
+    const foldersData = await apiRequest(FOLDERS_KEY)
+    setCache(FOLDERS_KEY, foldersData)
+    setFolders(foldersData.folders)
+
+    const savedData = await apiRequest(SAVED_RECIPES_KEY)
+    setCache(SAVED_RECIPES_KEY, savedData)
+    setSavedRecipes(savedData.recipes)
   }
 
   async function handleCreateFolder(e) {
@@ -47,7 +99,8 @@ function Folders() {
         body: { name: newFolderName.trim() },
       })
       setNewFolderName('')
-      loadData()
+      await reloadData()
+      showToast('Folder created', 'success')
     } catch (err) {
       setError(err.message)
     }
@@ -67,7 +120,8 @@ function Folders() {
         body: { name: editingFolderName.trim() },
       })
       setEditingFolderId(null)
-      loadData()
+      await reloadData()
+      showToast('Folder renamed', 'success')
     } catch (err) {
       setError(err.message)
     }
@@ -84,7 +138,13 @@ function Folders() {
       if (String(selectedFolderId) === String(folderId)) {
         setSelectedFolderId('all')
       }
-      loadData()
+      /*
+      Deleting a folder also moves its recipes to Unsorted on the
+      backend, which changes their folder_id - so the saved-recipes
+      cache needs a fresh fetch too, not just the folders list.
+      */
+      await reloadData()
+      showToast('Folder deleted', 'success')
     } catch (err) {
       setError(err.message)
     }
@@ -93,7 +153,15 @@ function Folders() {
   async function handleRemoveSavedRecipe(savedRecipeId) {
     try {
       await apiRequest(`/saved-recipes/${savedRecipeId}`, { method: 'DELETE' })
-      setSavedRecipes(savedRecipes.filter((recipe) => recipe.id !== savedRecipeId))
+      const updated = savedRecipes.filter((recipe) => recipe.id !== savedRecipeId)
+      setSavedRecipes(updated)
+      /*
+      Updating the cache directly (instead of just clearing it) means
+      the next visit to this page, or to SaveRecipeButton on another
+      recipe, reuses this result instead of triggering another fetch.
+      */
+      setCache(SAVED_RECIPES_KEY, { recipes: updated })
+      showToast('Recipe removed from saved', 'success')
     } catch (err) {
       setError(err.message)
     }

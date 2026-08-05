@@ -1,9 +1,13 @@
 .admin-dashboard {
   flex: 1;
-  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  overflow-x: hidden;
 }
 
 .admin-dashboard h1 {
@@ -12,30 +16,35 @@
 
 .admin-tabs {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 14px;
 }
 
 .admin-tab {
-  padding: 10px 18px;
+  padding: 10px 20px;
   font-size: 14px;
-  font-weight: 600;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.admin-tab:hover {
+  background-color: var(--color-primary-tint);
 }
 
 .admin-tab.active {
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   color: #fff;
-  border-color: #aa3bff;
+  border-color: var(--color-primary);
 }
 
 @media (max-width: 480px) {
   .admin-dashboard {
-    padding: 16px;
+    padding: 20px 16px;
   }
 }

@@ -1,6 +1,4 @@
 const authService = require("../services/authService");
-const userModel = require("../models/userModel");
-const AppError = require("../services/appError");
 
 /*
 Handles user registration.
@@ -47,19 +45,13 @@ inside req.user before this controller runs.
 */
 const getCurrentUser = async (req, res, next) => {
   try {
-    const user = await userModel.findPublicById(
+    const result = await authService.getCurrentUser(
       req.user.userId
     );
 
-    if (!user) {
-      throw new AppError("User not found", 404);
-    }
-
     res.status(200).json({
       success: true,
-      data: {
-        user,
-      },
+      data: result,
     });
   } catch (error) {
     next(error);

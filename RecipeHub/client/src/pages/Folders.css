@@ -1,41 +1,54 @@
 .folders-page {
   flex: 1;
-  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 36px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  overflow-x: hidden;
 }
 
 .folders-error {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .folder-create-form {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .folder-create-form input {
   flex: 1 1 220px;
+  min-width: 0;
+  max-width: 100%;
   padding: 10px 12px;
   font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
 .folder-create-form button {
-  padding: 10px 20px;
+  padding: 10px 22px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.folder-create-form button:hover {
+  background-color: var(--color-primary-hover);
 }
 
 .folder-tabs {
@@ -48,16 +61,22 @@
 .folder-tab {
   padding: 8px 16px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 999px;
-  background-color: #fff;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.folder-tab:hover {
+  background-color: var(--color-primary-tint);
 }
 
 .folder-tab.active {
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   color: #fff;
-  border-color: #aa3bff;
+  border-color: var(--color-primary);
 }
 
 .folder-tab-wrapper {
@@ -72,7 +91,7 @@
   font-size: 15px;
   cursor: pointer;
   padding: 4px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .folder-tab-editing {
@@ -84,33 +103,42 @@
 .folder-tab-editing input {
   padding: 6px 10px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
 .folder-tab-editing button {
   padding: 6px 10px;
   font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   background-color: #fff;
   cursor: pointer;
 }
 
 .saved-recipe-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: 20px;
+  width: 100%;
+  min-width: 0;
 }
 
 .saved-recipe-card {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.saved-recipe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
 }
 
 .saved-recipe-card a {
@@ -136,16 +164,16 @@
 .saved-recipe-card-body p {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .saved-recipe-remove {
-  margin: 0 14px 12px;
-  padding: 6px 12px;
+  margin: 0 14px 14px;
+  padding: 6px 14px;
   font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
   align-self: flex-start;
 }

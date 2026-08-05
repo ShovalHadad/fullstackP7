@@ -1099,7 +1099,10 @@ const updateRecipe = async (
 /*
 Soft-deletes a recipe owned by the authenticated chef.
 
-The recipe row, image, ingredients and steps remain stored.
+The recipe row, ingredients and steps remain stored, but the
+Cloudinary image is permanently removed since a soft-deleted
+recipe is never shown again and should not keep consuming
+image storage.
 */
 const deleteOwnRecipe = async (
   recipeId,
@@ -1109,6 +1112,9 @@ const deleteOwnRecipe = async (
 
   const connection =
     await pool.getConnection();
+
+  let imagePublicId = null;
+  let transactionCommitted = false;
 
   try {
     await connection.beginTransaction();
@@ -1140,6 +1146,9 @@ const deleteOwnRecipe = async (
       );
     }
 
+    imagePublicId =
+      recipe.image_public_id;
+
     const affectedRows =
       await recipeModel.deactivate(
         connection,
@@ -1154,13 +1163,37 @@ const deleteOwnRecipe = async (
     }
 
     await connection.commit();
+    transactionCommitted = true;
+
+    /*
+    The image is deleted only after the transaction commits
+    successfully, and a failure here does not fail the request
+    since the recipe itself was already deleted correctly.
+    */
+    if (imagePublicId) {
+      try {
+        await imageService.deleteImage(
+          imagePublicId
+        );
+      } catch (
+        imageDeletionError
+      ) {
+        console.error(
+          "Failed to delete recipe image:",
+          imageDeletionError.message
+        );
+      }
+    }
 
     return {
       id: recipeId,
       is_active: 0,
     };
   } catch (error) {
-    await connection.rollback();
+    if (!transactionCommitted) {
+      await connection.rollback();
+    }
+
     throw error;
   } finally {
     connection.release();
@@ -1170,7 +1203,9 @@ const deleteOwnRecipe = async (
 /*
 Soft-deletes any active recipe as an administrator.
 
-Administrators do not need to own the recipe.
+Administrators do not need to own the recipe. As with the
+chef's own delete, the Cloudinary image is removed once the
+recipe is confirmed deactivated.
 */
 const adminDeleteRecipe = async (
   recipeId
@@ -1179,6 +1214,9 @@ const adminDeleteRecipe = async (
 
   const connection =
     await pool.getConnection();
+
+  let imagePublicId = null;
+  let transactionCommitted = false;
 
   try {
     await connection.beginTransaction();
@@ -1200,6 +1238,9 @@ const adminDeleteRecipe = async (
       );
     }
 
+    imagePublicId =
+      recipe.image_public_id;
+
     const affectedRows =
       await recipeModel.deactivate(
         connection,
@@ -1214,13 +1255,32 @@ const adminDeleteRecipe = async (
     }
 
     await connection.commit();
+    transactionCommitted = true;
+
+    if (imagePublicId) {
+      try {
+        await imageService.deleteImage(
+          imagePublicId
+        );
+      } catch (
+        imageDeletionError
+      ) {
+        console.error(
+          "Failed to delete recipe image:",
+          imageDeletionError.message
+        );
+      }
+    }
 
     return {
       id: recipeId,
       is_active: 0,
     };
   } catch (error) {
-    await connection.rollback();
+    if (!transactionCommitted) {
+      await connection.rollback();
+    }
+
     throw error;
   } finally {
     connection.release();

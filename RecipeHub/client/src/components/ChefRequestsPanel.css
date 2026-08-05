@@ -12,23 +12,29 @@
 .filter-tab {
   padding: 8px 16px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 999px;
-  background-color: #fff;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.filter-tab:hover {
+  background-color: var(--color-primary-tint);
 }
 
 .filter-tab.active {
-  background-color: #aa3bff;
+  background-color: var(--color-primary);
   color: #fff;
-  border-color: #aa3bff;
+  border-color: var(--color-primary);
 }
 
 .chef-requests-error {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .chef-requests-list {
@@ -38,13 +44,14 @@
 }
 
 .chef-request-item {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-shadow: var(--shadow-soft);
 }
 
 .chef-request-header {
@@ -62,12 +69,12 @@
 .chef-request-contact {
   margin: 0;
   font-size: 13px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .status-badge {
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 700;
   text-transform: capitalize;
@@ -75,35 +82,35 @@
 }
 
 .status-pending {
-  background-color: #fff4d6;
-  color: #997404;
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .status-approved {
-  background-color: #e6f6ea;
-  color: #1e7a34;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .status-rejected {
-  background-color: #fdecea;
-  color: #b3261e;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
 }
 
 .chef-request-field {
   margin: 0;
   font-size: 14px;
-  color: #444;
+  color: var(--color-text-soft);
 }
 
 .chef-request-field span {
   font-weight: 600;
-  color: #222;
+  color: var(--color-text);
 }
 
 .chef-request-rejection {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #b3261e;
+  color: var(--color-error-text);
 }
 
 .chef-request-actions {
@@ -113,24 +120,24 @@
 }
 
 .approve-button {
-  padding: 8px 18px;
+  padding: 9px 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #1e7a34;
+  background-color: var(--color-success-text);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 
 .reject-button {
-  padding: 8px 18px;
+  padding: 9px 20px;
   font-size: 14px;
-  font-weight: 600;
-  color: #b3261e;
-  background-color: #fff;
-  border: 1px solid #b3261e;
-  border-radius: 6px;
+  font-weight: 700;
+  color: var(--color-error-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-error-text);
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 
@@ -148,10 +155,12 @@
 }
 
 .reject-form textarea {
+  width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   resize: vertical;
 }
@@ -162,21 +171,21 @@
 }
 
 .reject-form-buttons button:first-child {
-  padding: 8px 18px;
+  padding: 9px 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  background-color: #b3261e;
+  background-color: var(--color-error-text);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 
 .reject-form-buttons button:last-child {
-  padding: 8px 18px;
+  padding: 9px 20px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
   cursor: pointer;
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
@@ -8,6 +8,7 @@ import './Home.css'
 function Home() {
   const [recipes, setRecipes] = useState([])
   const [categories, setCategories] = useState([])
+  const [categoriesError, setCategoriesError] = useState('')
   const [pagination, setPagination] = useState({ page: 1, total_pages: 1 })
 
   const [searchInput, setSearchInput] = useState('')
@@ -19,6 +20,9 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const categoriesAbortRef = useRef(null)
+  const recipesAbortRef = useRef(null)
+
   useEffect(() => {
     const cachedCategories = getCache('/categories')
     if (cachedCategories) {
@@ -26,14 +30,29 @@ function Home() {
       return
     }
 
-    apiRequest('/categories')
+    const controller = new AbortController()
+    categoriesAbortRef.current = controller
+
+    apiRequest('/categories', { signal: controller.signal })
       .then((data) => {
         setCache('/categories', data)
         setCategories(data.categories)
       })
-      .catch(() => {})
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setCategoriesError('Could not load categories.')
+      })
+
+    return () => controller.abort()
   }, [])
 
+  /*
+  Re-runs whenever a filter or the page changes. The AbortController
+  cancels whichever request is still in flight - both the StrictMode
+  duplicate on first mount, and a still-pending request for the
+  previous filters if the user changes them again quickly - so a slow
+  , stale response can never overwrite a newer one.
+  */
   useEffect(() => {
     const params = new URLSearchParams()
     params.set('page', page)
@@ -51,17 +70,29 @@ function Home() {
       return
     }
 
+    const controller = new AbortController()
+    recipesAbortRef.current = controller
+
     setIsLoading(true)
     setError('')
 
-    apiRequest(cacheKey)
+    apiRequest(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRecipes(data.items)
         setPagination(data.pagination)
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false))
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
   }, [appliedSearch, categoryId, difficulty, page])
 
   function handleSearchSubmit(e) {
@@ -110,6 +141,7 @@ function Home() {
       </form>
 
       {error && <p className="home-error">{error}</p>}
+      {categoriesError && <p className="home-error">{categoriesError}</p>}
 
       {isLoading && <Spinner label="Loading recipes..." />}
 
