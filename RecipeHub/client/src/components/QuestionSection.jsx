@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { ToastContext } from '../context/ToastContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import Spinner from './Spinner'
 import './QuestionSection.css'
@@ -22,8 +22,6 @@ function QuestionSection({ recipeId, chefId }) {
   const [answerDrafts, setAnswerDrafts] = useState({})
   const [answeringId, setAnsweringId] = useState(null)
 
-  const abortControllerRef = useRef(null)
-
   /*
   The Chef Dashboard fetches this same endpoint (per recipe) to build
   its "waiting questions" list, using the identical cache key, so
@@ -40,12 +38,11 @@ function QuestionSection({ recipeId, chefId }) {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(questionsKey, { signal: controller.signal })
+    apiGet(questionsKey, { signal: controller.signal })
       .then((data) => {
         setCache(questionsKey, data)
         setQuestions(data.questions)
@@ -70,7 +67,7 @@ function QuestionSection({ recipeId, chefId }) {
   */
   async function reloadQuestions() {
     const questionsKey = `/recipes/${recipeId}/questions`
-    const data = await apiRequest(questionsKey)
+    const data = await apiGet(questionsKey)
     setCache(questionsKey, data)
     setQuestions(data.questions)
   }

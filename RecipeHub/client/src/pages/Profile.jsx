@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useRef } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { ToastContext } from '../context/ToastContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import ChefProfileSection from '../components/ChefProfileSection'
 import Spinner from '../components/Spinner'
@@ -26,7 +26,6 @@ function Profile() {
   const [successMessage, setSuccessMessage] = useState('')
 
   const fileInputRef = useRef(null)
-  const abortControllerRef = useRef(null)
 
   useEffect(() => {
     const cached = getCache(PROFILE_KEY)
@@ -40,9 +39,8 @@ function Profile() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
-    apiRequest(PROFILE_KEY, { signal: controller.signal })
+    apiGet(PROFILE_KEY, { signal: controller.signal })
       .then((data) => {
         setCache(PROFILE_KEY, data)
         setProfile(data.profile)

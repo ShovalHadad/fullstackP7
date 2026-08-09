@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useContext } from 'react'
-import { apiRequest } from '../services/api'
+import { useState, useEffect, useContext } from 'react'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from './Spinner'
@@ -29,8 +29,6 @@ function SaveRecipeButton({ recipeId }) {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const abortControllerRef = useRef(null)
-
   /*
   Shares its two cache keys with the Folders page - whichever of the
   two mounts first performs the real network requests.
@@ -50,7 +48,6 @@ function SaveRecipeButton({ recipeId }) {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
@@ -58,12 +55,12 @@ function SaveRecipeButton({ recipeId }) {
     async function loadData() {
       try {
         const foldersData =
-          cachedFolders || (await apiRequest(FOLDERS_KEY, { signal: controller.signal }))
+          cachedFolders || (await apiGet(FOLDERS_KEY, { signal: controller.signal }))
         setCache(FOLDERS_KEY, foldersData)
         setFolders(foldersData.folders)
 
         const savedData =
-          cachedSaved || (await apiRequest(SAVED_RECIPES_KEY, { signal: controller.signal }))
+          cachedSaved || (await apiGet(SAVED_RECIPES_KEY, { signal: controller.signal }))
         setCache(SAVED_RECIPES_KEY, savedData)
 
         const existing = savedData.recipes.find(

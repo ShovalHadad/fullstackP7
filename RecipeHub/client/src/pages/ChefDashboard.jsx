@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
@@ -20,10 +20,12 @@ function ChefDashboard() {
   const [answerDrafts, setAnswerDrafts] = useState({})
   const [answeringId, setAnsweringId] = useState(null)
 
-  const recipesAbortRef = useRef(null)
-  const questionsAbortRef = useRef(null)
-
   useEffect(() => {
+    if (!user?.id) {
+      setIsLoadingRecipes(false)
+      return
+    }
+
     const cacheKey = `/recipes?chefId=${user.id}&limit=50`
     const cached = getCache(cacheKey)
 
@@ -34,12 +36,11 @@ function ChefDashboard() {
     }
 
     const controller = new AbortController()
-    recipesAbortRef.current = controller
 
     setIsLoadingRecipes(true)
     setRecipesError('')
 
-    apiRequest(cacheKey, { signal: controller.signal })
+    apiGet(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRecipes(data.items)
@@ -55,14 +56,13 @@ function ChefDashboard() {
       })
 
     return () => controller.abort()
-  }, [])
+  }, [user?.id])
 
   /*
   Each recipe's questions are fetched (or read from cache, if
   QuestionSection on that recipe's page already loaded them first)
-  and combined into one "waiting questions" list. The AbortController
-  cancels every in-flight request in this batch if the recipe list
-  changes again or the component unmounts before they finish.
+  and combined into one "waiting questions" list. Cleanup aborts
+  local waiters if the recipe list changes or the component unmounts.
   */
   useEffect(() => {
     if (recipes.length === 0) {
@@ -71,7 +71,6 @@ function ChefDashboard() {
     }
 
     const controller = new AbortController()
-    questionsAbortRef.current = controller
 
     async function loadWaitingQuestions() {
       setIsLoadingQuestions(true)
@@ -81,7 +80,7 @@ function ChefDashboard() {
           recipes.map(async (recipe) => {
             const questionsKey = `/recipes/${recipe.id}/questions`
             const cached = getCache(questionsKey)
-            const data = cached || (await apiRequest(questionsKey, { signal: controller.signal }))
+            const data = cached || (await apiGet(questionsKey, { signal: controller.signal }))
 
             if (!cached) {
               setCache(questionsKey, data)
@@ -160,7 +159,7 @@ function ChefDashboard() {
       */
       if (question) {
         const questionsKey = `/recipes/${question.recipeId}/questions`
-        const freshData = await apiRequest(questionsKey)
+        const freshData = await apiGet(questionsKey)
         setCache(questionsKey, freshData)
 
         const stillWaiting = freshData.questions

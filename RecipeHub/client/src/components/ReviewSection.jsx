@@ -1,17 +1,17 @@
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { ToastContext } from '../context/ToastContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import Spinner from './Spinner'
 import './ReviewSection.css'
 
-function ReviewSection({ recipeId, chefId, onReviewsChanged }) {
+function ReviewSection({ recipeId, chefId, initialReviews, onReviewsChanged }) {
   const { user } = useContext(AuthContext)
   const { showToast } = useContext(ToastContext)
 
-  const [reviews, setReviews] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [reviews, setReviews] = useState(initialReviews ?? [])
+  const [isLoading, setIsLoading] = useState(initialReviews === undefined)
   const [error, setError] = useState('')
 
   const [rating, setRating] = useState(5)
@@ -20,15 +20,17 @@ function ReviewSection({ recipeId, chefId, onReviewsChanged }) {
   const [formError, setFormError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const abortControllerRef = useRef(null)
-
   /*
-  RecipeDetails fetches this exact same endpoint first (for the
-  rating summary) and caches it under the same key, so by the time
-  this effect runs the data is almost always already cached and no
-  second request is made.
+  When RecipeDetails already loaded reviews, skip the GET entirely.
+  Standalone use (or cache miss in parent) still fetches with AbortController.
   */
   useEffect(() => {
+    if (initialReviews !== undefined) {
+      setReviews(initialReviews)
+      setIsLoading(false)
+      return
+    }
+
     const reviewsKey = `/recipes/${recipeId}/reviews`
     const cached = getCache(reviewsKey)
 
@@ -39,12 +41,11 @@ function ReviewSection({ recipeId, chefId, onReviewsChanged }) {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(reviewsKey, { signal: controller.signal })
+    apiGet(reviewsKey, { signal: controller.signal })
       .then((data) => {
         setCache(reviewsKey, data)
         setReviews(data.items)
@@ -60,10 +61,11 @@ function ReviewSection({ recipeId, chefId, onReviewsChanged }) {
       })
 
     return () => controller.abort()
-  }, [recipeId])
+  }, [recipeId, initialReviews])
 
   const isOwnRecipe = user && Number(user.id) === Number(chefId)
-  const alreadyReviewed = user && reviews.some((review) => Number(review.user.id) === Number(user.id))
+  const alreadyReviewed =
+    user && reviews.some((review) => Number(review.user.id) === Number(user.id))
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -94,23 +96,14 @@ function ReviewSection({ recipeId, chefId, onReviewsChanged }) {
       setComment('')
       setImageFile(null)
 
-      /*
-      The rating/review count just changed, so this refetch is a
-      genuinely necessary request (not a redundant one) - it both
-      refreshes this section's list and gives us the fresh summary
-      to hand back to RecipeDetails, avoiding a separate request for
-      the header. The stale recipe-list cache (used by Home and the
-      Chef Dashboard) is invalidated too, since it embeds the old
-      average_rating/review_count.
-      */
       const reviewsKey = `/recipes/${recipeId}/reviews`
-      const freshData = await apiRequest(reviewsKey)
+      const freshData = await apiGet(reviewsKey)
       setCache(reviewsKey, freshData)
       setReviews(freshData.items)
       clearCache('/recipes?')
 
       if (onReviewsChanged) {
-        onReviewsChanged(freshData.summary)
+        onReviewsChanged(freshData.summary, freshData.items)
       }
 
       showToast('Review submitted', 'success')

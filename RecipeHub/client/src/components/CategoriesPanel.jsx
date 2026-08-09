@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext, useRef } from 'react'
-import { apiRequest } from '../services/api'
+import { useState, useEffect, useContext } from 'react'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from './Spinner'
@@ -19,8 +19,6 @@ function CategoriesPanel() {
   const [editingName, setEditingName] = useState('')
   const [editingDescription, setEditingDescription] = useState('')
 
-  const abortControllerRef = useRef(null)
-
   useEffect(() => {
     const cached = getCache('/admin/categories')
     if (cached) {
@@ -30,12 +28,11 @@ function CategoriesPanel() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest('/admin/categories', { signal: controller.signal })
+    apiGet('/admin/categories', { signal: controller.signal })
       .then((data) => {
         setCache('/admin/categories', data)
         setCategories(data.categories)
@@ -57,7 +54,7 @@ function CategoriesPanel() {
     setIsLoading(true)
     setError('')
 
-    apiRequest('/admin/categories')
+    apiGet('/admin/categories')
       .then((data) => {
         setCache('/admin/categories', data)
         setCategories(data.categories)

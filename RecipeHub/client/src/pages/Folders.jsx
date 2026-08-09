@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
@@ -23,8 +23,6 @@ function Folders() {
   const [editingFolderId, setEditingFolderId] = useState(null)
   const [editingFolderName, setEditingFolderName] = useState('')
 
-  const abortControllerRef = useRef(null)
-
   /*
   Both cache keys here are shared with SaveRecipeButton, which reads
   and writes the exact same "/folders" and "/saved-recipes" entries.
@@ -43,7 +41,6 @@ function Folders() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
@@ -51,12 +48,12 @@ function Folders() {
     async function loadData() {
       try {
         const foldersData =
-          cachedFolders || (await apiRequest(FOLDERS_KEY, { signal: controller.signal }))
+          cachedFolders || (await apiGet(FOLDERS_KEY, { signal: controller.signal }))
         setCache(FOLDERS_KEY, foldersData)
         setFolders(foldersData.folders)
 
         const savedData =
-          cachedSaved || (await apiRequest(SAVED_RECIPES_KEY, { signal: controller.signal }))
+          cachedSaved || (await apiGet(SAVED_RECIPES_KEY, { signal: controller.signal }))
         setCache(SAVED_RECIPES_KEY, savedData)
         setSavedRecipes(savedData.recipes)
       } catch (err) {
@@ -80,11 +77,11 @@ function Folders() {
   path (which would otherwise just serve the now-stale entries back).
   */
   async function reloadData() {
-    const foldersData = await apiRequest(FOLDERS_KEY)
+    const foldersData = await apiGet(FOLDERS_KEY)
     setCache(FOLDERS_KEY, foldersData)
     setFolders(foldersData.folders)
 
-    const savedData = await apiRequest(SAVED_RECIPES_KEY)
+    const savedData = await apiGet(SAVED_RECIPES_KEY)
     setCache(SAVED_RECIPES_KEY, savedData)
     setSavedRecipes(savedData.recipes)
   }

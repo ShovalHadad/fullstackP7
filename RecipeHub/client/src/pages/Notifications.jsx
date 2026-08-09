@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
 import './Notifications.css'
@@ -15,30 +15,19 @@ function Notifications() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const abortControllerRef = useRef(null)
-
   /*
   Notifications are deliberately never read from or written to the
-  shared cache. Every other cached page is invalidated by the same
-  user's own mutations (e.g. a chef editing their own recipe clears
-  their own cached list) - but a notification is created by someone
-  else's action (a different chef answering, another user reviewing,
-  an admin approving, etc.), so the recipient's browser tab has no
-  mutation of its own to hook a cache invalidation onto. Caching this
-  endpoint made it possible to open this page once, have it cached as
-  empty, and never see new notifications again without a hard reload.
-  The AbortController below still protects against duplicate requests
-  from React StrictMode's dev-only double-mount and from rapid page
-  changes - it just always talks to the server for the actual data.
+  shared cache. A notification is created by someone else's action,
+  so this tab has no mutation of its own to invalidate a cache entry.
+  apiGet still dedupes StrictMode remounts onto one HTTP request.
   */
   useEffect(() => {
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(`/notifications?page=${page}`, { signal: controller.signal })
+    apiGet(`/notifications?page=${page}`, { signal: controller.signal })
       .then((data) => {
         setNotifications(data.items)
         setPagination(data.pagination)

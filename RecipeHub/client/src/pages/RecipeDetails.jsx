@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { ToastContext } from '../context/ToastContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import ReviewSection from '../components/ReviewSection'
 import QuestionSection from '../components/QuestionSection'
@@ -17,25 +17,16 @@ function RecipeDetails() {
   const { showToast } = useContext(ToastContext)
 
   const [recipe, setRecipe] = useState(null)
+  const [reviews, setReviews] = useState([])
   const [ratingSummary, setRatingSummary] = useState({ average_rating: 0, review_count: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const abortControllerRef = useRef(null)
-
   /*
-  Reviews are fetched here (for the summary) and again inside
-  ReviewSection (for the full list). Both use the exact same cache
-  key, so whichever one runs first performs the real network request
-  and the second one reads the cached result - only one GET ever hits
-  the server per recipe visit.
-
-  The AbortController is created once per effect run and aborted in
-  the cleanup function. Under React StrictMode's dev-only
-  mount -> cleanup -> mount cycle, this cancels the first run's
-  requests before they reach the network, so only the second (real)
-  mount's requests are actually sent.
+  Loads recipe + reviews once in the parent, then passes reviews into
+  ReviewSection as props. That avoids a second component mounting and
+  fetching the same /reviews endpoint (even via cache) for this visit.
   */
   useEffect(() => {
     const recipeKey = `/recipes/${recipeId}`
@@ -46,13 +37,13 @@ function RecipeDetails() {
 
     if (cachedRecipe && cachedReviews) {
       setRecipe(cachedRecipe.recipe)
+      setReviews(cachedReviews.items)
       setRatingSummary(cachedReviews.summary)
       setIsLoading(false)
       return
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
@@ -60,15 +51,14 @@ function RecipeDetails() {
     async function loadRecipe() {
       try {
         const recipeData =
-          cachedRecipe ||
-          (await apiRequest(recipeKey, { signal: controller.signal }))
+          cachedRecipe || (await apiGet(recipeKey, { signal: controller.signal }))
         setCache(recipeKey, recipeData)
         setRecipe(recipeData.recipe)
 
         const reviewsData =
-          cachedReviews ||
-          (await apiRequest(reviewsKey, { signal: controller.signal }))
+          cachedReviews || (await apiGet(reviewsKey, { signal: controller.signal }))
         setCache(reviewsKey, reviewsData)
+        setReviews(reviewsData.items)
         setRatingSummary(reviewsData.summary)
       } catch (err) {
         if (err.name === 'AbortError') return
@@ -86,12 +76,14 @@ function RecipeDetails() {
   }, [recipeId])
 
   /*
-  Passed down to ReviewSection so that after a new review is
-  submitted, the header's star rating updates immediately from data
-  ReviewSection already fetched - no extra request needed here.
+  After a new review is submitted, ReviewSection hands back the fresh
+  summary + list so the header rating updates with no extra GET here.
   */
-  function handleReviewsChanged(summary) {
+  function handleReviewsChanged(summary, items) {
     setRatingSummary(summary)
+    if (items) {
+      setReviews(items)
+    }
   }
 
   async function handleAdminDelete() {
@@ -148,7 +140,8 @@ function RecipeDetails() {
         </div>
 
         <div className="recipe-details-rating">
-          &#9733; {Number(ratingSummary.average_rating).toFixed(1)} ({ratingSummary.review_count} reviews)
+          &#9733; {Number(ratingSummary.average_rating).toFixed(1)} ({ratingSummary.review_count}{' '}
+          reviews)
         </div>
 
         <SaveRecipeButton recipeId={recipe.id} />
@@ -242,6 +235,7 @@ function RecipeDetails() {
       <ReviewSection
         recipeId={recipe.id}
         chefId={recipe.chef_id}
+        initialReviews={reviews}
         onReviewsChanged={handleReviewsChanged}
       />
     </div>

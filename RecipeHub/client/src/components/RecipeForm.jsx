@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { apiRequest } from '../services/api'
+import { useState, useEffect } from 'react'
+import { apiGet } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import './RecipeForm.css'
 
@@ -39,8 +39,6 @@ function RecipeForm({ initialRecipe, onSubmit, submitLabel }) {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const abortControllerRef = useRef(null)
-
   useEffect(() => {
     const cached = getCache('/categories')
     if (cached) {
@@ -49,9 +47,8 @@ function RecipeForm({ initialRecipe, onSubmit, submitLabel }) {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
-    apiRequest('/categories', { signal: controller.signal })
+    apiGet('/categories', { signal: controller.signal })
       .then((data) => {
         setCache('/categories', data)
         setCategories(data.categories)

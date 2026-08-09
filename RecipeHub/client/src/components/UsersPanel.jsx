@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from './Spinner'
@@ -23,8 +23,6 @@ function UsersPanel() {
   const [error, setError] = useState('')
   const [actingId, setActingId] = useState(null)
 
-  const abortControllerRef = useRef(null)
-
   useEffect(() => {
     const params = new URLSearchParams()
     params.set('page', page)
@@ -43,12 +41,11 @@ function UsersPanel() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(cacheKey, { signal: controller.signal })
+    apiGet(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setUsers(data.items)

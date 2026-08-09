@@ -1,20 +1,26 @@
-import { createContext,useState,useEffect,useRef,} from 'react'
-
-import {apiRequest,setToken,clearToken,getToken,} from '../services/api'
-
+import { createContext, useState, useEffect } from 'react'
+import {
+  apiGet,
+  apiRequest,
+  setToken,
+  clearToken,
+  getToken,
+  clearInflightGets,
+} from '../services/api'
 import { clearCache } from '../services/cache'
 
 export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] =
-    useState(true)
-
-  const abortControllerRef = useRef(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   /*
   Restores the authenticated user after a page refresh.
+
+  Uses /auth/me (lightweight identity endpoint), NOT /profile.
+  /profile is for the Profile page's editable data; /auth/me returns
+  only the fields needed for auth/role checks across the app.
   */
   useEffect(() => {
     if (!getToken()) {
@@ -22,33 +28,24 @@ export function AuthProvider({ children }) {
       return
     }
 
-    const controller =
-      new AbortController()
+    const controller = new AbortController()
 
-    abortControllerRef.current =
-      controller
-
-    apiRequest('/auth/me', {
-      signal: controller.signal,
-    })
+    apiGet('/auth/me', { signal: controller.signal })
       .then((data) => {
         setUser(data.user)
       })
       .catch((error) => {
-        if (
-          error.name === 'AbortError'
-        ) {
+        if (error.name === 'AbortError') {
           return
         }
 
         clearToken()
         clearCache()
+        clearInflightGets()
         setUser(null)
       })
       .finally(() => {
-        if (
-          !controller.signal.aborted
-        ) {
+        if (!controller.signal.aborted) {
           setIsLoading(false)
         }
       })
@@ -62,22 +59,17 @@ export function AuthProvider({ children }) {
   Logs in a user and clears cached data that may belong
   to the previously authenticated account.
   */
-  async function login(
-    email,
-    password
-  ) {
+  async function login(email, password) {
     clearCache()
+    clearInflightGets()
 
-    const data = await apiRequest(
-      '/auth/login',
-      {
-        method: 'POST',
-        body: {
-          email,
-          password,
-        },
-      }
-    )
+    const data = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: {
+        email,
+        password,
+      },
+    })
 
     setToken(data.token)
     setUser(data.user)
@@ -89,26 +81,19 @@ export function AuthProvider({ children }) {
   Registers a user and clears cached data from
   any previous authentication session.
   */
-  async function register(
-    fullName,
-    username,
-    email,
-    password
-  ) {
+  async function register(fullName, username, email, password) {
     clearCache()
+    clearInflightGets()
 
-    const data = await apiRequest(
-      '/auth/register',
-      {
-        method: 'POST',
-        body: {
-          fullName,
-          username,
-          email,
-          password,
-        },
-      }
-    )
+    const data = await apiRequest('/auth/register', {
+      method: 'POST',
+      body: {
+        fullName,
+        username,
+        email,
+        password,
+      },
+    })
 
     setToken(data.token)
     setUser(data.user)
@@ -122,6 +107,7 @@ export function AuthProvider({ children }) {
   function logout() {
     clearToken()
     clearCache()
+    clearInflightGets()
     setUser(null)
   }
 
@@ -129,9 +115,7 @@ export function AuthProvider({ children }) {
   Updates the authenticated user without losing
   fields that were not included in the response.
   */
-  function updateUser(
-    updatedFields
-  ) {
+  function updateUser(updatedFields) {
     setUser((currentUser) => {
       if (!currentUser) {
         return currentUser
@@ -153,11 +137,5 @@ export function AuthProvider({ children }) {
     updateUser,
   }
 
-  return (
-    <AuthContext.Provider
-      value={value}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

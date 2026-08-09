@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { apiRequest } from '../services/api'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import RecipeForm from '../components/RecipeForm'
@@ -15,8 +15,6 @@ function EditRecipe() {
   const [recipe, setRecipe] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-
-  const abortControllerRef = useRef(null)
 
   /*
   Uses the same cache key as RecipeDetails, so navigating here right
@@ -34,9 +32,8 @@ function EditRecipe() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
-    apiRequest(cacheKey, { signal: controller.signal })
+    apiGet(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRecipe(data.recipe)

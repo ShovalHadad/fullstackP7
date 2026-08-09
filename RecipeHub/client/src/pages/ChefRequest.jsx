@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useContext } from 'react'
-import { apiRequest } from '../services/api'
+import { useState, useEffect, useContext } from 'react'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from '../components/Spinner'
@@ -22,8 +22,6 @@ function ChefRequest() {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const abortControllerRef = useRef(null)
-
   useEffect(() => {
     const cached = getCache(CHEF_REQUEST_KEY)
 
@@ -34,10 +32,13 @@ function ChefRequest() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
-    apiRequest(CHEF_REQUEST_KEY, { signal: controller.signal })
+    apiGet(CHEF_REQUEST_KEY, { signal: controller.signal })
       .then((data) => {
+        /*
+        Backend returns HTTP 200 with { request: null } when the user
+        has never submitted a request - a normal state, not an error.
+        */
         setCache(CHEF_REQUEST_KEY, data)
         setExistingRequest(data.request)
       })
@@ -45,16 +46,16 @@ function ChefRequest() {
         if (err.name === 'AbortError') return
 
         /*
-        The backend returns 404 specifically when the user has never
-        submitted a chef request - that is a normal, expected state,
-        not an error. Any other status (network failure, 401, 500...)
-        is a real problem and should be shown as one, instead of
-        silently being treated the same as "no request yet".
+        Keep 404 handling as a safe fallback for older API versions
+        that still returned 404 for "no request yet".
         */
         if (err.status === 404) {
+          setCache(CHEF_REQUEST_KEY, { request: null })
           setExistingRequest(null)
         } else {
-          setLoadError(err.message || 'Could not load your chef request status. Please try again.')
+          setLoadError(
+            err.message || 'Could not load your chef request status. Please try again.'
+          )
         }
       })
       .finally(() => {

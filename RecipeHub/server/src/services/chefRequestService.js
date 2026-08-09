@@ -131,22 +131,15 @@ const submitRequest = async (
 
 /*
 Returns the latest chef request of the current user.
+
+Returning null (HTTP 200) instead of throwing 404 keeps the
+Network tab clean: "no request yet" is a normal state for this
+resource, not a client error.
 */
 const getMyRequest = async (
   userId
 ) => {
-  const request =
-    await chefRequestModel
-      .findLatestByUserId(userId);
-
-  if (!request) {
-    throw new AppError(
-      "No chef request was found for this user",
-      404
-    );
-  }
-
-  return request;
+  return chefRequestModel.findLatestByUserId(userId);
 };
 
 /*

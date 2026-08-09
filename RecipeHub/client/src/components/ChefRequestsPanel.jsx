@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext, useRef } from 'react'
-import { apiRequest } from '../services/api'
+import { useState, useEffect, useContext } from 'react'
+import { apiGet, apiRequest } from '../services/api'
 import { getCache, setCache, clearCache } from '../services/cache'
 import { ToastContext } from '../context/ToastContext'
 import Spinner from './Spinner'
@@ -17,8 +17,6 @@ function ChefRequestsPanel() {
   const [rejectingId, setRejectingId] = useState(null)
   const [rejectionReason, setRejectionReason] = useState('')
 
-  const abortControllerRef = useRef(null)
-
   useEffect(() => {
     const cacheKey = `/admin/chef-requests?status=${statusFilter}`
     const cached = getCache(cacheKey)
@@ -30,12 +28,11 @@ function ChefRequestsPanel() {
     }
 
     const controller = new AbortController()
-    abortControllerRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(cacheKey, { signal: controller.signal })
+    apiGet(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRequests(data.requests)

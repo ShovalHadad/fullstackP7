@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { apiRequest } from '../services/api'
+import { apiGet } from '../services/api'
 import { getCache, setCache } from '../services/cache'
 import Spinner from '../components/Spinner'
 import './Home.css'
@@ -20,9 +20,6 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const categoriesAbortRef = useRef(null)
-  const recipesAbortRef = useRef(null)
-
   useEffect(() => {
     const cachedCategories = getCache('/categories')
     if (cachedCategories) {
@@ -31,9 +28,8 @@ function Home() {
     }
 
     const controller = new AbortController()
-    categoriesAbortRef.current = controller
 
-    apiRequest('/categories', { signal: controller.signal })
+    apiGet('/categories', { signal: controller.signal })
       .then((data) => {
         setCache('/categories', data)
         setCategories(data.categories)
@@ -47,11 +43,9 @@ function Home() {
   }, [])
 
   /*
-  Re-runs whenever a filter or the page changes. The AbortController
-  cancels whichever request is still in flight - both the StrictMode
-  duplicate on first mount, and a still-pending request for the
-  previous filters if the user changes them again quickly - so a slow
-  , stale response can never overwrite a newer one.
+  Re-runs whenever a filter or the page changes. Cleanup aborts the
+  local waiter so a slow stale response never overwrites newer filter
+  results. apiGet dedupes StrictMode remounts onto one HTTP request.
   */
   useEffect(() => {
     const params = new URLSearchParams()
@@ -71,12 +65,11 @@ function Home() {
     }
 
     const controller = new AbortController()
-    recipesAbortRef.current = controller
 
     setIsLoading(true)
     setError('')
 
-    apiRequest(cacheKey, { signal: controller.signal })
+    apiGet(cacheKey, { signal: controller.signal })
       .then((data) => {
         setCache(cacheKey, data)
         setRecipes(data.items)
